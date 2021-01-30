@@ -1,6 +1,7 @@
 use clap::App;
 
 mod item;
+mod cli;
 
 fn main() { 
     let matches = App::new("budgeter")

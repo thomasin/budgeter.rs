@@ -8,6 +8,7 @@ use diesel::prelude::*;
 
 use budgeter::{establish_connection, create_item};
 use budgeter::models::{Item};
+use super::cli;
 
 pub fn list_items() {
     use budgeter::schema::items::dsl::*;
@@ -17,9 +18,9 @@ pub fn list_items() {
         .load::<Item>(&connection)
         .expect("error loading items");
 
-    println!("displaying {} items", results.len());
+    cli::success(format!("displaying {} items", results.len()));
     for item in results {
-        println!("{}", item.name);
+        cli::success(format!("{}", item.name));
     }
 }
 
@@ -27,24 +28,24 @@ pub fn add_item() {
     let connection = establish_connection();
 
     match try_write_item(&connection) {
-        Ok(val) => println!("saved {} items", val),
-        Err(err) => println!("error saving item: {}", err.to_string()),
+        Ok(val) => cli::success(format!("saved {} items", val)),
+        Err(err) => cli::problem(format!("error saving item: {}", err.to_string())),
     }
 }
 
 fn try_write_item(conn: &SqliteConnection) -> std::result::Result<usize, Box<dyn std::error::Error>> {
-    println!("what would you like your name to be?");
+    cli::message(format!("what would you like your name to be?"));
     let mut name = String::new();
     stdin().read_line(&mut name).unwrap();
     let name = &name[..(name.len() - 1)]; // Drop the newline character
 
-    println!("how much is this item?");
+    cli::message(format!("how much is this item?"));
     let mut amount_str = String::new();
     stdin().read_line(&mut amount_str).unwrap();
     let amount_str = &amount_str[..(amount_str.len() - 1)]; // Drop the newline character
     let amount_f = amount_str.parse::<f32>()?;
 
-    println!("how many days does this amount cover?");
+    cli::message(format!("how many days does this amount cover?"));
     let mut days_str = String::new();
     stdin().read_line(&mut days_str).unwrap();
     let days_str = &days_str[..(days_str.len() - 1)]; // Drop the newline character
@@ -60,14 +61,14 @@ pub fn edit_item() {
         .parse::<i32>().expect("invalid id");
     let connection = establish_connection();
 
-    println!("enter new amount");
+    cli::message(format!("enter new amount"));
     let mut amount_str = String::new();
     stdin().read_line(&mut amount_str).unwrap();
     let amount_str = &amount_str[..(amount_str.len() - 1)]; // Drop the newline character
 
     match amount_str.parse::<f32>() {
         Ok(amount_f) => update_amount(&connection, id, amount_f),
-        Err(_) => println!("invalid amount pls do a floating point"),
+        Err(_) => cli::problem(format!("invalid amount pls do a floating point")),
     }
 }
 
@@ -79,8 +80,8 @@ fn update_amount(conn: &SqliteConnection, id: i32, amount_f: f32) {
         .execute(conn);
 
     match result {
-        Ok(_) => println!("updated item {} amount to {}", id, amount_f),
-        Err(_) => println!("error updating item")
+        Ok(_) => cli::success(format!("updated item {} amount to {}", id, amount_f)),
+        Err(_) => cli::problem(format!("error updating item"))
     }        
 }
 
@@ -95,7 +96,7 @@ pub fn delete_item() {
         .execute(&connection);
 
     match result {
-        Ok(num_deleted) => println!("deleted {} items", num_deleted),
-        Err(_) => println!("error deleting items"),
+        Ok(num_deleted) => cli::success(format!("deleted {} items", num_deleted)),
+        Err(_) => cli::problem(format!("error deleting items")),
     }
 }
