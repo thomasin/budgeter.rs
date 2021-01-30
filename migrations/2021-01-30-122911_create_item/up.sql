@@ -1,0 +1,6 @@
+CREATE TABLE items (
+  id INTEGER NOT NULL PRIMARY KEY,
+  name VARCHAR NOT NULL UNIQUE,
+  days INTEGER NOT NULL CHECK(days >= 0),
+  amount REAL NOT NULL CHECK(amount >= 0)
+)

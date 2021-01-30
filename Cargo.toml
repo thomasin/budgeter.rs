@@ -1,0 +1,12 @@
+[package]
+name = "budgeter"
+version = "0.1.0"
+authors = ["thomasin <thomasinabraham@me.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+diesel = { version = "1.4.4", features = ["sqlite"] }
+dotenv = "0.15.0"
+clap = "3.0.0-beta.2"
