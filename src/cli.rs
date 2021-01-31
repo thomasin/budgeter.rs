@@ -4,7 +4,7 @@ use std::io;
 use std::error;
 use std::cmp::max;
 use itertools::{Itertools, EitherOrBoth};
-use log;
+
 
 // Messages
 
@@ -49,65 +49,96 @@ pub struct Table {
     rows: Vec<Vec<String>>, // A list of table rows,
 }
 
+/*
+lets talk about ownership.
+ideally, the table struct would own its own properties instead of borrowing them.
+i want the properties to be private, so once the table has the properties they cant
+be used again. that seems to indicated the parameters of `new` and `add_row` should
+_not_ be borrowed. i just want to move ownership into table.
+*/
+
 impl Table {
     pub fn new(headers: Vec<String>) -> Table {
+        /*
+        so then why do we need to clone header here? this is because when
+        you assign Table.headers, the _original_ headers that was
+        passed into the function is moved to Table.headers and is
+        _not available_ for use in the Table.lengths and Table.rows properties.
+        it raises a "does not implement Copy" error because if it _did_
+        implement copy (like say, an integer) it would copy it behind the
+        scenes.
+        */
         Table {
             headers: headers.clone(),
-            lengths: headers.clone().iter().map(|s| s.len()).collect(),
+            lengths: Table::column_lengths(&headers),
             rows: Vec::with_capacity(headers.clone().iter().count()),
         }
     }
 
-    pub fn add_row(&self, row: &Vec<String>) -> Table {
-        let mut rows = self.rows.clone();
-        rows.push(row.clone());
+/*
+attack of the clones.
+this is the same situation as before. we don't want row to be used
+after it is passed into Table, so we are not accepting a reference.
+mutability of properties is inherited from the struct.
+*/
 
-        let new_lengths:Vec<usize> = row.clone().iter().map(|s| s.len()).collect();
-        let cloned_l = self.lengths.clone();
-        let lengths = cloned_l.iter().zip_longest(new_lengths);
-        let summed_lengths = lengths.map(|either| {
+    pub fn add_row(&mut self, row: Vec<String>) -> () {
+        self.rows.push(row.clone()); // Add row to mutable self
+
+        // variable shadowing is so helpful here for some
+        // cleaner looking code.
+        let lengths = Table::column_lengths(&row);
+        let lengths = self.lengths.iter().zip_longest(lengths);
+
+        self.lengths = lengths.map(|either| {
             match either {
+                // I don't understand why a is a reference here
                 EitherOrBoth::Both(a, b) => max(1, max(*a, b)),
                 EitherOrBoth::Left(a) => max(1, *a),
                 EitherOrBoth::Right(b) => max(1, b),
             }
-        });
-
-        Table {
-            headers: self.headers.clone(),
-            lengths: summed_lengths.collect(),
-            rows,
-        }
+        }).collect();
     }
 
-    pub fn show(&self) -> String {
-        let mut ascii = self.show_headers();
+    pub fn show(&self) -> () {
+        self.show_headers();
+
         for row in &self.rows {
-            ascii = ascii + &self.show_row(row.to_vec());
+            self.show_row(row);
         }
-        ascii
     }
 
-    fn show_headers(&self) -> String {
-        let mut ascii = "-".repeat(self.table_width());
-        ascii += "\n|";
-        self.show_row(self.headers.clone())
+    fn show_headers(&self) -> () {
+        self.hr("-");
+        self.show_row(&self.headers);
     }
 
-    fn show_row(&self, row: Vec<String>) -> String {
-        let mut ascii = "|".to_string();
+    fn show_row(&self, row: &Vec<String>) -> () {
+        print!("|");
+
         for (pos, col) in row.iter().enumerate() {
-            let length = self.lengths[pos];
-            ascii = ascii + &format!(" {:1$} |", &col, length);
+            print!(" {:1$} |", col, self.lengths[pos]);
         }
-        ascii.push('\n');
-        ascii = ascii + &"-".repeat(self.table_width());
-        ascii.push('\n');
-        ascii
+
+        println!("");
+        self.hr("-");
+    }
+
+    fn hr(&self, chr: &str) -> () {
+        let hr = chr.repeat(self.table_width());
+        println!("{}", hr);
     }
 
     fn table_width(&self) -> usize {
         self.lengths.iter().sum::<usize>() + (3 * self.lengths.len()) + 1
+    }
+
+    /*
+    here we borrow the row. calling .iter() creates an iterator that just
+    holds references to the original items in the vector.
+    */
+    fn column_lengths(row: &Vec<String>) -> Vec<usize> {
+        row.iter().map(|c: &String| c.len()).collect()
     }
 }
 

@@ -1,8 +1,6 @@
 use clap::{App, Arg};
 use budgeter::*;
 
-mod budget;
-mod item;
 mod interact;
 mod cli;
 
@@ -80,7 +78,7 @@ fn main() {
     };
 
     match result {
-        Ok(msg) => cli::success(&msg),
+        Ok(_) => (),
         Err(err) => cli::problem(&err.to_string()),
     }
 }
