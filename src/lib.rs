@@ -4,10 +4,11 @@ extern crate dotenv;
 
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
+
 use dotenv::dotenv;
 use std::env;
 
-use self::models::{NewItem};
+use self::models::{Item, NewItem};
 
 pub mod schema;
 pub mod models;
@@ -21,7 +22,7 @@ pub fn establish_connection() -> SqliteConnection {
         .expect(&format!("Error connecting to {}", database_url))
 }
 
-pub fn create_item<'a>(conn: &SqliteConnection, name: &'a str, days: &'a i32, amount: &'a f32) -> QueryResult<usize> {
+pub fn create_item<'a>(conn: SqliteConnection, name: &'a str, days: &'a i32, amount: &'a f32) -> QueryResult<usize> {
     use schema::items;
 
     let new_item = NewItem {
@@ -32,5 +33,28 @@ pub fn create_item<'a>(conn: &SqliteConnection, name: &'a str, days: &'a i32, am
 
     diesel::insert_into(items::table)
         .values(&new_item)
-        .execute(conn)
+        .execute(&conn)
 }
+
+pub fn list_items(conn: SqliteConnection) -> std::result::Result<Vec<Item>, diesel::result::Error> {
+    use schema::items::dsl::{items};
+
+    items.limit(5)
+        .load::<Item>(&conn)
+}
+
+pub fn edit_item(conn: SqliteConnection, id: i32, new_name: &str, new_days: &i32, new_amount: &f32) -> std::result::Result<usize, diesel::result::Error> {
+    use schema::items::dsl::{items, name, days, amount};
+
+    diesel::update(items.find(id))
+        .set((name.eq(new_name), days.eq(new_days), amount.eq(new_amount)))
+        .execute(&conn)
+}
+
+pub fn delete_item(conn: SqliteConnection, id: i32) -> std::result::Result<usize, diesel::result::Error> {
+    use schema::items::dsl::{items};
+
+    diesel::delete(items.find(id))
+        .execute(&conn)
+}
+
