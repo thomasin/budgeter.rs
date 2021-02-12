@@ -141,6 +141,3 @@ mutability of properties is inherited from the struct.
         row.iter().map(|c: &String| c.len()).collect()
     }
 }
-
-
-

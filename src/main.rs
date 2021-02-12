@@ -1,8 +1,15 @@
+#[macro_use]
+extern crate diesel;
+
+use self::libr::establish_connection;
 use clap::{App, Arg};
-use budgeter::*;
 
 mod interact;
 mod cli;
+mod duration;
+mod models;
+mod schema;
+mod libr;
 
 fn main() {
     env_logger::init();
@@ -29,8 +36,8 @@ fn main() {
                     .about("item id to edit")
                     .required(true)
                     .index(1))))
-        .subcommand(App::new("create")
-            .about("create a budget for time period")
+        .subcommand(App::new("show")
+            .about("show a budget for time period")
             .arg(Arg::new("duration")
                 .about("number of days to run budget for")
                 .required(true)
@@ -45,9 +52,11 @@ fn main() {
                 Some(("list", _)) => {
                     interact::list_all_items(conn)
                 }
+
                 Some(("add", _)) => {
                     interact::add_item(conn)
                 }
+
                 Some(("edit", edit_matches)) => {
                     match edit_matches.value_of_t::<i32>("id") {
                         Ok(id) => {
@@ -56,6 +65,7 @@ fn main() {
                         Err(_) => Err(Box::from("invalid id given")),
                     }
                 }
+
                 Some(("delete", delete_matches)) => {
                     match delete_matches.value_of_t::<i32>("id") {
                         Ok(id) => {
@@ -64,21 +74,27 @@ fn main() {
                         Err(_) => Err(Box::from("invalid id given")),
                     }
                 }
+
                 _ => Err(Box::from("invalid subcommand")),
             }
         }
-        Some(("create", create_matches)) => {
-            match create_matches.value_of_t::<i32>("duration") {
-                Ok(_duration) => Err(Box::from("invalid duration given")),
+
+        Some(("show", show_matches)) => {
+            match show_matches.value_of_t::<i32>("duration") {
+                Ok(duration) => {
+                    interact::show_budget(conn, duration)
+                },
                 Err(_) => Err(Box::from("invalid duration given")),
             }
         }
+
         None => Err(Box::from("no subcommand was used")),
+
         _ => Err(Box::from("invalid subcommand")),
     };
 
     match result {
-        Ok(_) => (),
+        Ok(_) => (), // any success messages should be shown already
         Err(err) => cli::problem(&err.to_string()),
     }
 }
