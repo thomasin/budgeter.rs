@@ -82,7 +82,7 @@ after it is passed into Table, so we are not accepting a reference.
 mutability of properties is inherited from the struct.
 */
 
-    pub fn add_row(&mut self, row: Vec<String>) -> () {
+    pub fn add_row(&mut self, row: Vec<String>) {
         self.rows.push(row.clone()); // Add row to mutable self
 
         // variable shadowing is so helpful here for some
@@ -100,7 +100,7 @@ mutability of properties is inherited from the struct.
         }).collect();
     }
 
-    pub fn show(&self) -> () {
+    pub fn show(&self) {
         self.show_headers();
 
         for row in &self.rows {
@@ -108,23 +108,23 @@ mutability of properties is inherited from the struct.
         }
     }
 
-    fn show_headers(&self) -> () {
+    fn show_headers(&self) {
         self.hr("-");
         self.show_row(&self.headers);
     }
 
-    fn show_row(&self, row: &Vec<String>) -> () {
+    fn show_row(&self, row: &[String]) {
         print!("|");
 
         for (pos, col) in row.iter().enumerate() {
             print!(" {:1$} |", col, self.lengths[pos]);
         }
 
-        println!("");
+        println!();
         self.hr("-");
     }
 
-    fn hr(&self, chr: &str) -> () {
+    fn hr(&self, chr: &str) {
         let hr = chr.repeat(self.table_width());
         println!("{}", hr);
     }
@@ -137,7 +137,7 @@ mutability of properties is inherited from the struct.
     here we borrow the row. calling .iter() creates an iterator that just
     holds references to the original items in the vector.
     */
-    fn column_lengths(row: &Vec<String>) -> Vec<usize> {
+    fn column_lengths(row: &[String]) -> Vec<usize> {
         row.iter().map(|c: &String| c.len()).collect()
     }
 }

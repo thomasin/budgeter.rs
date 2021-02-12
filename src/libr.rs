@@ -20,10 +20,10 @@ pub fn create_item<'a>(conn: SqliteConnection, name: &'a str, duration_unit: &'a
     use crate::schema::items;
 
     let new_item = NewItem {
-        name: name,
-        duration_unit: duration_unit,
-        duration_amount: duration_amount,
-        cost: cost,
+        name,
+        duration_unit,
+        duration_amount,
+        cost,
     };
 
     diesel::insert_into(items::table)
@@ -57,7 +57,7 @@ pub fn show_budget(conn: SqliteConnection, duration: i32) -> std::result::Result
 
     let sum = items.iter().fold(0.0, |acc, item| {
         // item.duration_amount
-        let multiple = duration as f32 / 3 as f32;
+        let multiple = duration as f32 / 3_f32;
         acc + (item.cost * multiple)
     });
 

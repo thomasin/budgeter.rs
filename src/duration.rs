@@ -8,7 +8,7 @@ impl Duration {
     pub fn humanise(&self) -> String {
         match &self {
             Duration::Day(days) => {
-                if days == &14 { format!("{}", "fortnight") }
+                if days == &14 { "fortnight".to_string() }
                 else if days % 7 == 0 { pluralise(&(days / 7), "week") }
                 else { pluralise(days, "day") }
             }

@@ -31,7 +31,7 @@ impl Queryable<items::SqlType, diesel::sqlite::Sqlite> for Item {
         Item {
             id: row.0,
             name: row.1,
-            duration: duration,
+            duration,
             cost: row.4,
         }
     }

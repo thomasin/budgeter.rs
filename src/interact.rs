@@ -19,7 +19,7 @@ pub fn list_all_items(conn: SqliteConnection) -> std::result::Result<(), Box<dyn
             format!("#{}", item.id),
             item.name,
             format!("{:.2}", item.cost),
-            format!("{}", item.duration.humanise()),
+            item.duration.humanise().to_string(),
         ]);
     }
 
