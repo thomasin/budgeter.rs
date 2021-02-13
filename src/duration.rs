@@ -8,6 +8,7 @@ impl Duration {
     pub fn from_string(s: String) -> std::result::Result<Duration, Box<dyn std::error::Error>> {
         match s.split_whitespace().collect::<Vec<&str>>()[..] {
             ["day"] => Ok(Duration::Day(1)),
+            ["week"] => Ok(Duration::Day(7)),
             ["fortnight"] => Ok(Duration::Day(14)),
             ["month"] => Ok(Duration::Month(1)),
             ["year"] => Ok(Duration::Month(12)),
@@ -20,6 +21,16 @@ impl Duration {
             [amount, "days"] => {
                 let num = to_number(amount)?;
                 Ok(Duration::Day(num))
+            },
+
+            [amount, "week"] => {
+                let num = to_number(amount)?;
+                Ok(Duration::Day(num * 7))
+            },
+
+            [amount, "weeks"] => {
+                let num = to_number(amount)?;
+                Ok(Duration::Day(num * 7))
             },
 
             [amount, "fortnight"] => {
