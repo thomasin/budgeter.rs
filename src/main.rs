@@ -37,11 +37,7 @@ fn main() {
                     .required(true)
                     .index(1))))
         .subcommand(App::new("show")
-            .about("show a budget for time period")
-            .arg(Arg::new("duration")
-                .about("number of days to run budget for")
-                .required(true)
-                .index(1)))
+            .about("show a budget for time period"))
         .get_matches();
 
     let conn = establish_connection();
@@ -79,13 +75,8 @@ fn main() {
             }
         }
 
-        Some(("show", show_matches)) => {
-            match show_matches.value_of_t::<i32>("duration") {
-                Ok(duration) => {
-                    interact::show_budget(conn, duration)
-                },
-                Err(_) => Err(Box::from("invalid duration given")),
-            }
+        Some(("show", _)) => {
+            interact::show_budget(conn)
         }
 
         None => Err(Box::from("no subcommand was used")),

@@ -52,15 +52,19 @@ pub fn delete_item(conn: SqliteConnection, id: i32) -> std::result::Result<usize
         .execute(&conn)
 }
 
-pub fn show_budget(conn: SqliteConnection, duration: i32) -> std::result::Result<f32, diesel::result::Error> {
+pub fn show_budget(conn: SqliteConnection, budget_days: f32) -> std::result::Result<f32, diesel::result::Error> {
     let items = list_items(conn)?;
 
+    let days_in_month: f32 = (52_f32/12_f32)*7_f32; // 30.333333
+
     let sum = items.iter().fold(0.0, |acc, item| {
-        // item.duration_amount
-        let multiple = duration as f32 / 3_f32;
+        let multiple = match item.duration {
+            Duration::Day(days) => budget_days / days as f32,
+            Duration::Month(months) => budget_days / (months as f32 * days_in_month),
+        };
+        
         acc + (item.cost * multiple)
     });
 
     Ok(sum)
 }
-
