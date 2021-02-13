@@ -12,10 +12,11 @@ pub struct Item {
     pub name: String,
     pub duration: Duration,
     pub cost: f32,
+    pub currency: String,
 }
 
 impl Queryable<items::SqlType, diesel::sqlite::Sqlite> for Item {
-    type Row = (i32, String, String, i32, f32);
+    type Row = (i32, String, String, i32, f32, String);
 
     fn build(row: Self::Row) -> Self {
         let duration: Duration = match &row.2[..] {
@@ -29,6 +30,7 @@ impl Queryable<items::SqlType, diesel::sqlite::Sqlite> for Item {
             name: row.1,
             duration,
             cost: row.4,
+            currency: row.5,
         }
     }
 }
@@ -40,6 +42,7 @@ pub struct NewItem {
     #[diesel(embed)]
     pub duration: Duration,
     pub cost: f32,
+    pub currency: String,
 }
 
 impl<'insert> Insertable<items::table> for &'insert Duration {

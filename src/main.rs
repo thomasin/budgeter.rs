@@ -21,6 +21,7 @@ fn main() {
         .subcommand(App::new("item")
             .about("manage budget items")
             .subcommand(App::new("list")
+                .alias("ls")
                 .about("list budget items"))
             .subcommand(App::new("add")
                 .about("add new budget item"))

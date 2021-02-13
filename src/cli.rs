@@ -35,12 +35,6 @@ pub fn ask_f32(msg: &str) -> Result<f32, Box<dyn error::Error>> {
     Ok(response)
 }
 
-pub fn ask_i32(msg: &str) -> Result<i32, Box<dyn error::Error>> {
-    let response = ask_str(msg)?;
-    let response = response.parse::<i32>()?;
-    Ok(response)
-}
-
 // Tables
 
 pub struct Table {

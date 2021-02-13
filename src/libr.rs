@@ -17,13 +17,14 @@ pub fn establish_connection() -> SqliteConnection {
         .expect(&format!("Error connecting to {}", database_url))
 }
 
-pub fn create_item(conn: SqliteConnection, name: String, duration: Duration, cost: f32) -> QueryResult<usize> {
+pub fn create_item(conn: SqliteConnection, name: String, duration: Duration, cost: f32, currency: String) -> QueryResult<usize> {
     use crate::schema::items;
 
     let new_item = NewItem {
         name,
         duration,
         cost,
+        currency,
     };
 
     diesel::insert_into(items::table)
@@ -37,11 +38,17 @@ pub fn list_items(conn: SqliteConnection) -> std::result::Result<Vec<Item>, dies
     items.load::<Item>(&conn)
 }
 
-pub fn edit_item(conn: SqliteConnection, id: i32, new_name: &str, new_duration_amount: &i32, new_cost: &f32) -> std::result::Result<usize, diesel::result::Error> {
-    use crate::schema::items::dsl::{items, name, duration_amount, cost};
+pub fn edit_item(conn: SqliteConnection, id: i32, new_name: String, new_duration: Duration, new_cost: f32, new_currency: String) -> std::result::Result<usize, diesel::result::Error> {
+    use crate::schema::items::dsl::{items, name, duration_unit, duration_amount, cost, currency};
 
     diesel::update(items.find(id))
-        .set((name.eq(new_name), duration_amount.eq(new_duration_amount), cost.eq(new_cost)))
+        .set((
+            name.eq(new_name),
+            duration_unit.eq(new_duration.unit()),
+            duration_amount.eq(new_duration.amount()),
+            cost.eq(new_cost),
+            currency.eq(new_currency)
+        ))
         .execute(&conn)
 }
 
@@ -62,7 +69,7 @@ pub fn show_budget(conn: SqliteConnection, budget_days: f32) -> std::result::Res
             Duration::Day(days) => budget_days / days as f32,
             Duration::Month(months) => budget_days / (months as f32 * days_in_month),
         };
-        
+
         acc + (item.cost * multiple)
     });
 

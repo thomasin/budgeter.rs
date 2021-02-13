@@ -1,5 +1,3 @@
-// use diesel::table;
-
 table! {
     items (id) {
         id -> Integer,
@@ -7,5 +5,6 @@ table! {
         duration_unit -> Text,
         duration_amount -> Integer,
         cost -> Float,
+        currency -> Text,
     }
 }
