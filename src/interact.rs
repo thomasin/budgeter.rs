@@ -1,4 +1,5 @@
 use diesel::SqliteConnection;
+use crate::duration::{Duration};
 
 use std::error;
 
@@ -32,11 +33,10 @@ pub fn add_item(conn: SqliteConnection) -> std::result::Result<(), Box<dyn error
     let name = cli::ask_str("what would you like the item title to be?")?;
     let cost = cli::ask_f32("how much is this item?")?;
 
-    // To-do: implement duration from humanised input
-    let duration_unit = cli::ask_str("enter D for cost over days, M for cost over months")?;
-    let duration_amount = cli::ask_i32("how many _ does this amount cover?")?;
+    let duration_str = cli::ask_str("what time period does this amount cover?")?;
+    let duration = Duration::from_string(duration_str)?;
 
-    super::libr::create_item(conn, &name, &duration_unit, &duration_amount, &cost)?;
+    super::libr::create_item(conn, name, duration, cost)?;
     cli::success("✨ created item");
     Ok(())
 }

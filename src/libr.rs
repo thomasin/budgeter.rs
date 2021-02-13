@@ -6,6 +6,7 @@ use dotenv::dotenv;
 use std::env;
 
 use crate::models::{Item, NewItem};
+use crate::duration::{Duration};
 
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();
@@ -16,18 +17,17 @@ pub fn establish_connection() -> SqliteConnection {
         .expect(&format!("Error connecting to {}", database_url))
 }
 
-pub fn create_item<'a>(conn: SqliteConnection, name: &'a str, duration_unit: &'a str, duration_amount: &'a i32, cost: &'a f32) -> QueryResult<usize> {
+pub fn create_item(conn: SqliteConnection, name: String, duration: Duration, cost: f32) -> QueryResult<usize> {
     use crate::schema::items;
 
     let new_item = NewItem {
         name,
-        duration_unit,
-        duration_amount,
+        duration,
         cost,
     };
 
     diesel::insert_into(items::table)
-        .values(&new_item)
+        .values(new_item)
         .execute(&conn)
 }
 
