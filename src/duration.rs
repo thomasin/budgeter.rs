@@ -119,28 +119,3 @@ pub fn to_number(s: &str) -> std::result::Result<i32, Box<dyn std::error::Error>
         num => Ok(num.parse::<i32>()?),
     }
 }
-
-// pub fn days_in_month<T: TimeZone>(date: Date<T>) -> i32 {
-//     match date.month() {
-//         1  => 31,
-//         2  => {
-//             // https://en.wikipedia.org/wiki/Leap_year#Algorithm
-//             let year = date.year();
-//             if (year % 4) > 0 { 28 }
-//             else if (year % 100) > 0 { 29 }
-//             else if (year % 400) > 0 { 28 }
-//             else { 29 }
-//         },
-//         3  => 31,
-//         4  => 30,
-//         5  => 31,
-//         6  => 30,
-//         7  => 31,
-//         8  => 31,
-//         9  => 30,
-//         10 => 31,
-//         11 => 30,
-//         12 => 31,
-//         _ => panic!("impossible date"),
-//     }
-// }
