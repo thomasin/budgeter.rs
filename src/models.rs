@@ -7,6 +7,7 @@ use crate::schema::items;
 use crate::duration::{Duration};
 
 
+#[derive(Debug, Clone)]
 pub struct Item {
     pub id: i32,
     pub name: String,

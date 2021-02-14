@@ -7,6 +7,7 @@ use clap::{App, Arg};
 mod interact;
 mod cli;
 mod duration;
+mod budget;
 mod models;
 mod schema;
 mod libr;

@@ -67,13 +67,11 @@ pub fn show_budget(conn: SqliteConnection) -> std::result::Result<(), Box<dyn er
     let duration_str = cli::ask_str("what time period should this budget cover?")?;
     let duration = Duration::from_string(duration_str)?;
 
-    let days_in_month: f32 = (52_f32/12_f32)*7_f32; // 30.333333
+    let budget = crate::libr::show_budget(conn, duration)?;
 
-    let total = match duration {
-        Duration::Day(days) => crate::libr::show_budget(conn, days as f32)?,
-        Duration::Month(months) => crate::libr::show_budget(conn, months as f32 * days_in_month)?,
-    };
+    for (currency, budget) in budget.split_by_currency() {
+        println!("total {}: {:.2}", currency, budget.total());
+    }
 
-    println!("total: {:.2}", total);
     Ok(())
 }
