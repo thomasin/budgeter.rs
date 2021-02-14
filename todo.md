@@ -1,0 +1,8 @@
+- defaults
+- deactivate items
+- edit items with cli args
+- create items with cli args
+- groups and tags
+- save budgets
+- currency conversion
+- bulk editing????
