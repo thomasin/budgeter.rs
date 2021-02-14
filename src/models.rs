@@ -67,9 +67,6 @@ impl Insertable<items::table> for Duration {
     ) as Insertable<items::table>>::Values;
 
     fn values(self) -> Self::Values {
-        Insertable::values((
-            ExpressionMethods::eq(items::duration_unit, self.unit()),
-            ExpressionMethods::eq(items::duration_amount, self.amount())
-        ))
+        (&self).values()
     }
 }

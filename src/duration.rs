@@ -5,6 +5,8 @@ pub enum Duration {
 }
 
 impl Duration {
+    // To-do: simplify this somewhat, look into module organisation i.e. what responsibilities
+    // does this impl have compared to the rest of the module
     pub fn from_string(s: String) -> std::result::Result<Duration, Box<dyn std::error::Error>> {
         match s.split_whitespace().collect::<Vec<&str>>()[..] {
             ["day"] => Ok(Duration::Day(1)),

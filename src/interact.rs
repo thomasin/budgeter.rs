@@ -5,6 +5,8 @@ use std::error;
 
 use crate::cli;
 
+// This module might go well in main.rs instead
+
 pub fn list_all_items(conn: SqliteConnection) -> std::result::Result<(), Box<dyn error::Error>> {
     let items = super::libr::list_items(conn)?;
 
